@@ -3,7 +3,8 @@ const obtieneDatosRut= "SELECT p.rut  ,p.dv_rut  ,p.primer_nombre  ,p.ape_pat  ,
 const obtieneDatos= "SELECT * FROM integracion.persona";
 const actualizaDatosxRut = 'UPDATE persona SET primer_nombre = ?, ape_pat = ?, ape_mat = ?, celular = ?, direccion = ? WHERE rut = ?';
 const deleteDatos = "DELETE FROM persona WHERE rut = ?";
-
+const insertDatos = 'INSERT INTO persona (rut, dv_rut, primer_nombre, segundo_nombre, ape_pat, ape_mat, fecha_nac, sexo, celular, direccion, cod_region, cod_ciudad, cod_provincia, cod_comuna, correo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+ 
 //Regiones
 const obtieneRegion = "SELECT r.id, r.nombre FROM regiones r";
 const obtieneProvincia = "SELECT pr.id, pr.nombre FROM provincias pr WHERE pr.id_region = ?";
@@ -19,5 +20,6 @@ module.exports = {
     obtieneComuna,
     actualizaDatosxRut,
     deleteDatos,
-    obtieneDatos
+    obtieneDatos,
+    insertDatos
   };

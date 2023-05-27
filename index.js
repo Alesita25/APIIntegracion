@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const app = express();
 // Importar variables de otro archivo
 const { port,port_db,urlbd,pwd,db } = require('./conf');
-const {obtieneDatosRut,  obtieneRegion,  obtieneProvincia,  obtieneCiudad,  obtieneComuna,  actualizaDatosxRut,  deleteDatos, obtieneDatos} = require('./querys');
+const {obtieneDatosRut,  obtieneRegion,  obtieneProvincia,  actualizaDatosxRut,  deleteDatos, obtieneDatos, insertDatos} = require('./querys');
 // Importar y configurar Swagger
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
@@ -188,7 +188,7 @@ app.post('/registros/:rut', (req, res) => {
     return;
   }
   const values = [primer_nombre, ape_pat, ape_mat, celular, direccion, rut];
-  connection.query(actualizaDatosxRut, values, (error, results) => {
+  connection.query(actualizaDatosxRut, values, (error) => {
     if (error) {
       console.error('Error al actualizar el registro:', error);
       res.status(500).send('Error al actualizar el registro');
@@ -197,6 +197,113 @@ app.post('/registros/:rut', (req, res) => {
     }
   });
 });
+
+/**
+ * @swagger
+ * /registros:
+ *   post:
+ *     summary: Insertar un registro
+ *     tags: [Registros]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               rut:
+ *                 type: integer
+ *               dv_rut:
+ *                 type: string
+ *               primer_nombre:
+ *                 type: string
+ *               segundo_nombre:
+ *                 type: string
+ *               ape_pat:
+ *                 type: string
+ *               ape_mat:
+ *                 type: string
+ *               fecha_nac:
+ *                 type: string
+ *                 format: date
+ *               sexo:
+ *                 type: string
+ *               celular:
+ *                 type: integer
+ *               direccion:
+ *                 type: string
+ *               cod_region:
+ *                 type: integer
+ *               cod_ciudad:
+ *                 type: integer
+ *               cod_provincia:
+ *                 type: integer
+ *               cod_comuna:
+ *                 type: integer
+ *               correo:
+ *                 type: string
+ *             required:
+ *               - rut
+ *               - dv_rut
+ *               - primer_nombre
+ *               - ape_pat
+ *               - fecha_nac
+ *               - sexo
+ *               - celular
+ *               - direccion
+ *               - cod_region
+ *               - cod_ciudad
+ *               - cod_provincia
+ *               - cod_comuna
+ *               - correo
+ *     responses:
+ *       200:
+ *         description: Registro insertado exitosamente
+ *       400:
+ *         description: Faltan datos en el cuerpo de la solicitud
+ *       500:
+ *         description: Error al insertar el registro
+ */
+
+app.post('/registros', (req, res) => {
+  const {
+    rut,
+    dv_rut,
+    primer_nombre,
+    segundo_nombre,
+    ape_pat,
+    ape_mat,
+    fecha_nac,
+    sexo,
+    celular,
+    direccion,
+    cod_region,
+    cod_ciudad,
+    cod_provincia,
+    cod_comuna,
+    correo
+  } = req.body;
+
+  // Validar que todos los campos requeridos estén presentes
+  if (!rut || !dv_rut || !primer_nombre || !ape_pat || !fecha_nac || !sexo || !celular || !direccion || !cod_region || !cod_ciudad || !cod_provincia || !cod_comuna || !correo) {
+  //if (!rut || !dv_rut || !primer_nombre || !ape_pat || !fecha_nac || !sexo || !celular || !direccion || !correo) {
+    res.status(400).send('Faltan datos en el cuerpo de la solicitud');
+    return;
+  }
+
+  // Consulta SQL para insertar el registro en la base de datos
+  const values = [rut, dv_rut, primer_nombre, segundo_nombre, ape_pat, ape_mat, fecha_nac, sexo, celular, direccion, cod_region, cod_ciudad, cod_provincia, cod_comuna, correo];
+
+  connection.query(insertDatos, values, (error, results) => {
+    if (error) {
+      console.error('Error al insertar el registro:', error);
+      res.status(500).send('Error al insertar el registro');
+    } else {
+      res.send('Registro insertado exitosamente');
+    }
+  });
+});
+
 
 
 /**
@@ -223,7 +330,7 @@ app.post('/registros/:rut', (req, res) => {
 app.delete('/registros/:rut', (req, res) => {
   const rut = req.params.rut;
   // Ejecutar la consulta SQL
-  connection.query(deleteDatos, [rut], (error, results) => {
+  connection.query(deleteDatos, [rut], (error) => {
   //db.query(deleteDatos, [rut], (error, result) => {
     if (error) {
       // Manejar el error de la consulta
